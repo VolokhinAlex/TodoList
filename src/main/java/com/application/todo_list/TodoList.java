@@ -23,7 +23,7 @@ public class TodoList extends Application implements Thread.UncaughtExceptionHan
     private final SettingApp settingApp = new SettingApp();
 
     @FXML
-    Button addTaskButton, closeTaskButton, historyButton, saveEditedTask, startAppButton, closeHistoryButton;
+    Button addTaskButton, closeTaskButton, historyButton, saveEditedTaskButton, startAppButton, closeHistoryButton;
 
     @FXML
     ListView<String> taskList;
@@ -71,10 +71,6 @@ public class TodoList extends Application implements Thread.UncaughtExceptionHan
             startAppButton.setVisible(false);
             settingApp.onStartApp();
             onShowTasks();
-            taskList.setOnMouseClicked(event -> {
-                taskTextOfPanel.setVisible(true);
-                onShowTextTask();
-            });
         });
     }
 
@@ -126,6 +122,13 @@ public class TodoList extends Application implements Thread.UncaughtExceptionHan
             taskList.setItems(tasks);
             historyButton.setVisible(true);
             closeHistoryButton.setVisible(false);
+            taskList.setOnMouseClicked(event -> {
+                taskTextOfPanel.setVisible(true);
+                onShowTextTask();
+            });
+            closeTaskButton.setVisible(true);
+            saveEditedTaskButton.setVisible(true);
+            taskText.setEditable(true);
         });
     }
 
@@ -137,11 +140,19 @@ public class TodoList extends Application implements Thread.UncaughtExceptionHan
     @FXML
     private void onShowHistoryTasks() {
         Platform.runLater(() -> {
-            String[] listTasksArray = settingApp.onShowTitleTasksTest();
+            String[] listTasksArray = settingApp.onShowTitleTasksAll();
             ObservableList<String> tasks = FXCollections.observableArrayList(listTasksArray);
             taskList.setItems(tasks);
             historyButton.setVisible(false);
             closeHistoryButton.setVisible(true);
+            closeTaskButton.setVisible(false);
+            saveEditedTaskButton.setVisible(false);
+            taskText.setEditable(false);
+            taskList.setOnMouseClicked(event -> {
+                taskTextOfPanel.setVisible(true);
+                MultipleSelectionModel<String> getText = taskList.getSelectionModel();
+                taskText.setText(settingApp.onShowTextTasksAll(getText.getSelectedItem()));
+            });
         });
     }
 

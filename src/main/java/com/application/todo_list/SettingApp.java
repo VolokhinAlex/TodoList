@@ -27,7 +27,7 @@ public class SettingApp implements OnActionTodoList {
 
     @Override
     public void onCreateTask(String taskTitle, String taskText) {
-        SqlService.isAlreadyThereTitle(taskTitle, OPEN_TASK);
+        if (SqlService.checkStatusTask(taskTitle, OPEN_TASK)) return;
         SqlService.createTask(taskTitle, taskText, System.currentTimeMillis() / 1000L);
         logger.log(Level.INFO, "Task Created");
     }
@@ -51,11 +51,18 @@ public class SettingApp implements OnActionTodoList {
 
     @Override
     public String onShowTextTask(String taskTitle) {
-        return SqlService.getTextTask(taskTitle, OPEN_TASK);
+        if (SqlService.checkStatusTask(taskTitle, OPEN_TASK)) return SqlService.getTextTask(taskTitle);
+        return null;
     }
 
-    public String[] onShowTitleTasksTest() {
-        return SqlService.getTitleTask(CLOSE_TASK).split(SqlService.DELIMITER);
+    @Override
+    public String[] onShowTitleTasksAll() {
+        return SqlService.getAllTitleTask().split(SqlService.DELIMITER);
+    }
+
+    @Override
+    public String onShowTextTasksAll(String taskTitle) {
+        return SqlService.getTextTask(taskTitle);
     }
 
     public void setIconApp(Stage stage) {

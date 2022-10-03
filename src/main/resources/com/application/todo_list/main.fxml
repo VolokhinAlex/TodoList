@@ -17,7 +17,7 @@
         </HBox>
         <FlowPane fx:id="taskTextOfPanel" minWidth="450" maxWidth="450" visible="false">
             <TextArea HBox.hgrow="ALWAYS" fx:id="taskText" minHeight="325" maxHeight="325"/>
-            <Button HBox.hgrow="ALWAYS" text="Save Edited Task" fx:id="saveEditedTask" minWidth="225" maxWidth="225"
+            <Button HBox.hgrow="ALWAYS" text="Save Edited Task" fx:id="saveEditedTaskButton" minWidth="225" maxWidth="225"
                     onAction="#onEditAndSaveTask"/>
             <Button HBox.hgrow="ALWAYS" fx:id="closeTaskButton" text="Close Task" minWidth="225" maxWidth="225"
                     onAction="#onCloseTask"/>

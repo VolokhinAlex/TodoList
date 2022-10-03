@@ -7,5 +7,6 @@ public interface OnActionTodoList {
     void onEditAndSaveTask(String taskTitle, String taskText);
     String[] onShowTitleTasks();
     String onShowTextTask(String taskTitle);
-
+    String[] onShowTitleTasksAll();
+    String onShowTextTasksAll(String taskTitle);
 }

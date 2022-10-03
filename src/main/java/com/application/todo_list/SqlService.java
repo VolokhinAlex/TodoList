@@ -35,7 +35,7 @@ public class SqlService {
         }
     }
 
-    public static boolean isAlreadyThereTitle(String taskTitle, boolean taskStatus) {
+    public static boolean checkStatusTask(String taskTitle, boolean taskStatus) {
         String query = String.format("SELECT title FROM todo_list WHERE title=\"%s\" AND task_status=%s", taskTitle, taskStatus);
         try (ResultSet set = statement.executeQuery(query)) {
             return set.next();
@@ -45,8 +45,8 @@ public class SqlService {
         return false;
     }
 
-    public static String getTextTask(String taskTitle, boolean taskStatus) {
-        String query = String.format("SELECT task_text FROM todo_list WHERE title=\"%s\" AND task_status=%s", taskTitle, taskStatus);
+    public static String getTextTask(String taskTitle) {
+        String query = String.format("SELECT task_text FROM todo_list WHERE title=\"%s\"", taskTitle);
         try (ResultSet set = statement.executeQuery(query)) {
             return set.getString("task_text");
         } catch (SQLException e) {
@@ -58,6 +58,19 @@ public class SqlService {
     public static String getTitleTask(boolean taskStatus) {
         String query = String.format("SELECT * FROM todo_list WHERE task_status=%s", taskStatus);
         try (ResultSet set = statement.executeQuery(query)) {
+            StringBuilder openTasks = new StringBuilder();
+            while (set.next()) {
+                openTasks.append(set.getString("title")).append(DELIMITER);
+            }
+            return openTasks.toString();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String getAllTitleTask() {
+        try (ResultSet set = statement.executeQuery("SELECT * FROM todo_list")) {
             StringBuilder openTasks = new StringBuilder();
             while (set.next()) {
                 openTasks.append(set.getString("title")).append(DELIMITER);
