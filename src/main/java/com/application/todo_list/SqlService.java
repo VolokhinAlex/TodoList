@@ -21,11 +21,11 @@ public class SqlService {
         }
     }
 
-    public static void createTask(String taskTitle, String taskText, long dateTime) {
+    public static void createTask(String title, String text, long dateTime) {
         try {
             preparedStatementQuery = connection.prepareStatement("INSERT INTO todo_list(title, task_text, task_status, date_time) VALUES(?, ?, ?, ?);");
-            preparedStatementQuery.setString(1, taskTitle);
-            preparedStatementQuery.setString(2, taskText);
+            preparedStatementQuery.setString(1, title);
+            preparedStatementQuery.setString(2, text);
             preparedStatementQuery.setBoolean(3, true);
             preparedStatementQuery.setLong(4, dateTime);
             preparedStatementQuery.executeUpdate();
@@ -35,42 +35,37 @@ public class SqlService {
         }
     }
 
-    public static boolean checkStatusTask(String taskTitle, boolean taskStatus) {
-        String query = String.format("SELECT title FROM todo_list WHERE title=\"%s\" AND task_status=%s", taskTitle, taskStatus);
-        try (ResultSet set = statement.executeQuery(query)) {
-            return set.next();
+    public static boolean getTaskStatus(String title) {
+        try (PreparedStatement getStatus = connection.prepareStatement("SELECT task_status FROM todo_list WHERE title=?")) {
+            getStatus.setString(1, title);
+            try (ResultSet resultSet = getStatus.executeQuery()) {
+                while (resultSet.next()) {
+                    return resultSet.getBoolean("task_status");
+                }
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
     }
 
-    public static String getTextTask(String taskTitle) {
-        String query = String.format("SELECT task_text FROM todo_list WHERE title=\"%s\"", taskTitle);
-        try (ResultSet set = statement.executeQuery(query)) {
-            return set.getString("task_text");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public static String getTitleTask(boolean taskStatus) {
-        String query = String.format("SELECT * FROM todo_list WHERE task_status=%s", taskStatus);
-        try (ResultSet set = statement.executeQuery(query)) {
-            StringBuilder openTasks = new StringBuilder();
-            while (set.next()) {
-                openTasks.append(set.getString("title")).append(DELIMITER);
+    public static String getTaskText(String title) {
+        try (PreparedStatement getText = connection.prepareStatement("SELECT task_text FROM todo_list WHERE title=?")) {
+            getText.setString(1, title);
+            try (ResultSet resultSet = getText.executeQuery()) {
+                while (resultSet.next()) {
+                    return resultSet.getString("task_text");
+                }
             }
-            return openTasks.toString();
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    public static String getAllTitleTask() {
-        try (ResultSet set = statement.executeQuery("SELECT * FROM todo_list")) {
+    public static String getTaskTitle(boolean status) {
+        String query = String.format("SELECT * FROM todo_list WHERE task_status=%s", status);
+        try (ResultSet set = statement.executeQuery(query)) {
             StringBuilder openTasks = new StringBuilder();
             while (set.next()) {
                 openTasks.append(set.getString("title")).append(DELIMITER);
@@ -107,13 +102,28 @@ public class SqlService {
         }
     }
 
+    public static String getHistoryTasks() {
+        try (PreparedStatement getTasks = connection.prepareStatement("SELECT title FROM todo_list")) {
+            StringBuilder tasks = new StringBuilder();
+            try (ResultSet resultSet = getTasks.executeQuery()) {
+                while (resultSet.next()) {
+                    tasks.append(resultSet.getString("title")).append(DELIMITER);
+                }
+            }
+            return tasks.toString();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static void close() {
         try {
+            statement.close();
             connection.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
-
 
 }

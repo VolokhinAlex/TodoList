@@ -3,6 +3,7 @@ package com.application.todo_list;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
+import java.util.Objects;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -12,7 +13,7 @@ public class SettingApp implements OnActionTodoList {
 
     private static final boolean OPEN_TASK = true;
     private static final boolean CLOSE_TASK = false;
-    private Logger logger = Logger.getLogger(SettingApp.class.getName());
+    private final Logger logger = Logger.getLogger(SettingApp.class.getName());
 
     public void onStartApp() {
         SqlService.connect();
@@ -27,7 +28,7 @@ public class SettingApp implements OnActionTodoList {
 
     @Override
     public void onCreateTask(String taskTitle, String taskText) {
-        if (SqlService.checkStatusTask(taskTitle, OPEN_TASK)) return;
+        if (SqlService.getTaskStatus(taskTitle) == OPEN_TASK) return;
         SqlService.createTask(taskTitle, taskText, System.currentTimeMillis() / 1000L);
         logger.log(Level.INFO, "Task Created");
     }
@@ -46,28 +47,36 @@ public class SettingApp implements OnActionTodoList {
 
     @Override
     public String[] onShowTitleTasks() {
-        return SqlService.getTitleTask(OPEN_TASK).split(SqlService.DELIMITER);
+        return Objects.requireNonNull(SqlService.getTaskTitle(OPEN_TASK)).split(SqlService.DELIMITER);
     }
 
     @Override
     public String onShowTextTask(String taskTitle) {
-        if (SqlService.checkStatusTask(taskTitle, OPEN_TASK)) return SqlService.getTextTask(taskTitle);
+        if (SqlService.getTaskStatus(taskTitle) == OPEN_TASK) {
+            return SqlService.getTaskText(taskTitle);
+        }
         return null;
     }
 
     @Override
     public String[] onShowTitleTasksAll() {
-        return SqlService.getAllTitleTask().split(SqlService.DELIMITER);
+        return Objects.requireNonNull(SqlService.getHistoryTasks()).split(SqlService.DELIMITER);
     }
 
     @Override
     public String onShowTextTasksAll(String taskTitle) {
-        return SqlService.getTextTask(taskTitle);
+        StringBuilder texts = new StringBuilder();
+        return texts.append(SqlService.getTaskText(taskTitle)).append(SqlService.DELIMITER)
+                .append(SqlService.getTaskStatus(taskTitle)).toString();
     }
 
     public void setIconApp(Stage stage) {
         String urlImage = String.valueOf(getClass().getResource("/com/application/todo_list/icons/app_icon.png"));
         stage.getIcons().add(new Image(urlImage));
+    }
+
+    public boolean onGetTaskStatus(String taskTitle) {
+        return SqlService.getTaskStatus(taskTitle);
     }
 
 }
