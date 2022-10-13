@@ -3,6 +3,8 @@ package com.application.todo_list;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.Objects;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
@@ -77,6 +79,13 @@ public class SettingApp implements OnActionTodoList {
 
     public boolean onGetTaskStatus(String taskTitle) {
         return SqlService.getTaskStatus(taskTitle);
+    }
+
+    @Override
+    public String onShowTimeTask(String taskTitle) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = new Date(SqlService.getTaskTime(taskTitle) * 1000L);
+        return simpleDateFormat.format(date);
     }
 
 }

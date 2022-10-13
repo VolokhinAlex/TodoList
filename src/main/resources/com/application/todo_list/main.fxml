@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox fx:controller="com.application.todo_list.TodoList" xmlns:fx="http://javafx.com/fxml" alignment="center">
+<VBox fx:controller="com.application.todo_list.TodoList" xmlns:fx="http://javafx.com/fxml" alignment="CENTER">
 
     <HBox fx:id="topOfPanel" visible="false">
         <TextField HBox.hgrow="ALWAYS" fx:id="fieldTitle" promptText="Please Enter Title Task"/>
@@ -12,23 +12,29 @@
     </HBox>
 
     <HBox fx:id="centerOfPanel" visible="false">
+
         <HBox fx:id="taskOfPanel" minWidth="200">
-            <ListView HBox.hgrow="ALWAYS"  fx:id="taskList" />
+            <ListView HBox.hgrow="ALWAYS" fx:id="taskList"/>
         </HBox>
+
         <FlowPane fx:id="taskTextOfPanel" minWidth="450" maxWidth="450" visible="false">
             <TextArea HBox.hgrow="ALWAYS" fx:id="taskText" minHeight="325" maxHeight="325"/>
-            <Button HBox.hgrow="ALWAYS" text="Save Edited Task" fx:id="saveEditedTaskButton" minWidth="225" maxWidth="225"
+            <Button HBox.hgrow="ALWAYS" text="Save Edited Task" fx:id="saveEditedTaskButton" minWidth="225"
+                    maxWidth="225"
                     onAction="#onEditAndSaveTask"/>
             <Button HBox.hgrow="ALWAYS" fx:id="closeTaskButton" text="Close Task" minWidth="225" maxWidth="225"
                     onAction="#onCloseTask"/>
+            <Label fx:id="taskTime"/>
         </FlowPane>
+
     </HBox>
 
     <GridPane fx:id="bottomButtonsPanel">
-        <Button fx:id="startAppButton" onAction="#onStartApp" text="Start App"  minWidth="650" maxWidth="650"/>
-        <Button fx:id="historyButton" text="Open History Tasks"  minWidth="650" maxWidth="650" visible="false"
+        <Button fx:id="startAppButton" onAction="#onStartApp" text="Start App" minWidth="650" maxWidth="650"/>
+        <Button fx:id="historyButton" text="Open History Tasks" minWidth="650" maxWidth="650" visible="false"
                 onAction="#onShowHistoryTasks"/>
-        <Button fx:id="closeHistoryButton" text="Close History Tasks"  minWidth="650" maxWidth="650" visible="false"
+        <Button fx:id="closeHistoryButton" text="Close History Tasks" minWidth="650" maxWidth="650" visible="false"
                 onAction="#onShowTasks"/>
     </GridPane>
+
 </VBox>

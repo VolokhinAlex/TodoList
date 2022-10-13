@@ -21,11 +21,11 @@ public class SqlService {
         }
     }
 
-    public static void createTask(String title, String text, long dateTime) {
+    public static void createTask(String taskTitle, String taskText, long dateTime) {
         try {
-            preparedStatementQuery = connection.prepareStatement("INSERT INTO todo_list(title, task_text, task_status, date_time) VALUES(?, ?, ?, ?);");
-            preparedStatementQuery.setString(1, title);
-            preparedStatementQuery.setString(2, text);
+            preparedStatementQuery = connection.prepareStatement("INSERT INTO todo_list(task_title, task_text, task_status, date_time) VALUES(?, ?, ?, ?);");
+            preparedStatementQuery.setString(1, taskTitle);
+            preparedStatementQuery.setString(2, taskText);
             preparedStatementQuery.setBoolean(3, true);
             preparedStatementQuery.setLong(4, dateTime);
             preparedStatementQuery.executeUpdate();
@@ -35,9 +35,9 @@ public class SqlService {
         }
     }
 
-    public static boolean getTaskStatus(String title) {
-        try (PreparedStatement getStatus = connection.prepareStatement("SELECT task_status FROM todo_list WHERE title=?")) {
-            getStatus.setString(1, title);
+    public static boolean getTaskStatus(String taskTitle) {
+        try (PreparedStatement getStatus = connection.prepareStatement("SELECT task_status FROM todo_list WHERE task_title=?")) {
+            getStatus.setString(1, taskTitle);
             try (ResultSet resultSet = getStatus.executeQuery()) {
                 while (resultSet.next()) {
                     return resultSet.getBoolean("task_status");
@@ -49,9 +49,9 @@ public class SqlService {
         return false;
     }
 
-    public static String getTaskText(String title) {
-        try (PreparedStatement getText = connection.prepareStatement("SELECT task_text FROM todo_list WHERE title=?")) {
-            getText.setString(1, title);
+    public static String getTaskText(String taskTitle) {
+        try (PreparedStatement getText = connection.prepareStatement("SELECT task_text FROM todo_list WHERE task_title=?")) {
+            getText.setString(1, taskTitle);
             try (ResultSet resultSet = getText.executeQuery()) {
                 while (resultSet.next()) {
                     return resultSet.getString("task_text");
@@ -64,22 +64,38 @@ public class SqlService {
     }
 
     public static String getTaskTitle(boolean status) {
-        String query = String.format("SELECT * FROM todo_list WHERE task_status=%s", status);
-        try (ResultSet set = statement.executeQuery(query)) {
-            StringBuilder openTasks = new StringBuilder();
-            while (set.next()) {
-                openTasks.append(set.getString("title")).append(DELIMITER);
+        try (PreparedStatement getTitle = connection.prepareStatement("SELECT * FROM todo_list WHERE task_status=?")) {
+            getTitle.setBoolean(1, status);
+            try (ResultSet resultSet = getTitle.executeQuery()) {
+                StringBuilder openTasks = new StringBuilder();
+                while (resultSet.next()) {
+                    openTasks.append(resultSet.getString("task_title")).append(DELIMITER);
+                }
+                return openTasks.toString();
             }
-            return openTasks.toString();
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
     }
 
+    public static Long getTaskTime(String taskTitle) {
+        try (PreparedStatement getTime = connection.prepareStatement("SELECT date_time FROM todo_list WHERE task_title=?")) {
+            getTime.setString(1, taskTitle);
+            try (ResultSet resultSet = getTime.executeQuery()) {
+                while (resultSet.next()) {
+                    return resultSet.getLong("date_time");
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
     public static void editAndSaveTask(String taskTitle, String newText) {
         try {
-            preparedStatementQuery = connection.prepareStatement("UPDATE todo_list SET task_text=? WHERE title=? AND task_status=?");
+            preparedStatementQuery = connection.prepareStatement("UPDATE todo_list SET task_text=? WHERE task_title=? AND task_status=?");
             preparedStatementQuery.setString(1, newText);
             preparedStatementQuery.setString(2, taskTitle);
             preparedStatementQuery.setBoolean(3, true);
@@ -90,10 +106,10 @@ public class SqlService {
         }
     }
 
-    public static void closeTask(String taskTitle, boolean status) {
+    public static void closeTask(String taskTitle, boolean taskStatus) {
         try {
-            preparedStatementQuery = connection.prepareStatement("UPDATE todo_list SET task_status=? WHERE title=?;");
-            preparedStatementQuery.setBoolean(1, status);
+            preparedStatementQuery = connection.prepareStatement("UPDATE todo_list SET task_status=? WHERE task_title=?;");
+            preparedStatementQuery.setBoolean(1, taskStatus);
             preparedStatementQuery.setString(2, taskTitle);
             preparedStatementQuery.executeUpdate();
             preparedStatementQuery.close();
@@ -103,11 +119,11 @@ public class SqlService {
     }
 
     public static String getHistoryTasks() {
-        try (PreparedStatement getTasks = connection.prepareStatement("SELECT title FROM todo_list")) {
+        try (PreparedStatement getTasks = connection.prepareStatement("SELECT task_title FROM todo_list")) {
             StringBuilder tasks = new StringBuilder();
             try (ResultSet resultSet = getTasks.executeQuery()) {
                 while (resultSet.next()) {
-                    tasks.append(resultSet.getString("title")).append(DELIMITER);
+                    tasks.append(resultSet.getString("task_title")).append(DELIMITER);
                 }
             }
             return tasks.toString();

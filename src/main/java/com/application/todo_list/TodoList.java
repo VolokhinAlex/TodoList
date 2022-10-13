@@ -25,24 +25,27 @@ public class TodoList extends Application implements Thread.UncaughtExceptionHan
     public static final String DELIMITER = "±";
 
     @FXML
-    Button addTaskButton, closeTaskButton, historyButton, saveEditedTaskButton, startAppButton, closeHistoryButton;
+    private Button addTaskButton, closeTaskButton, historyButton, saveEditedTaskButton, startAppButton, closeHistoryButton;
 
     @FXML
-    ListView<String> taskList;
+    private ListView<String> taskList;
 
     @FXML
-    TextField fieldTitle, fieldText;
+    private TextField fieldTitle, fieldText;
 
     @FXML
-    HBox topOfPanel, taskOfPanel, centerOfPanel;
+    private HBox topOfPanel, taskOfPanel, centerOfPanel;
 
     @FXML
-    FlowPane taskTextOfPanel;
+    private FlowPane taskTextOfPanel;
     @FXML
-    GridPane bottomButtonsPanel;
+    private GridPane bottomButtonsPanel;
 
     @FXML
-    TextArea taskText;
+    private TextArea taskText;
+
+    @FXML
+    private Label taskTime;
 
     private static final String OPEN_TASK_COLOR = "derive(palegreen, 50%)";
     private static final String CLOSE_TASK_COLOR = "derive(#be0303, 50%)";
@@ -136,10 +139,11 @@ public class TodoList extends Application implements Thread.UncaughtExceptionHan
                 taskTextOfPanel.setVisible(true);
                 onShowTextTask();
             });
-            closeTaskButton.setVisible(true);
-            saveEditedTaskButton.setVisible(true);
-            taskText.setEditable(true);
-            onSetCellColor(DEFAULT_TASK_COLOR, DEFAULT_TASK_COLOR, DEFAULT_TASK_COLOR);
+            if (!taskTextOfPanel.getChildren().contains(closeTaskButton) || !taskTextOfPanel.getChildren().contains(saveEditedTaskButton)) {
+                taskTextOfPanel.getChildren().addAll(closeTaskButton, saveEditedTaskButton);
+            }
+            taskTextOfPanel.getChildren().remove(taskTime);
+            onSetCellColor(DEFAULT_TASK_COLOR, DEFAULT_TASK_COLOR);
         });
     }
 
@@ -152,24 +156,30 @@ public class TodoList extends Application implements Thread.UncaughtExceptionHan
     private void onShowHistoryTasks() {
         Platform.runLater(() -> {
             String[] listTasksArray = settingApp.onShowTitleTasksAll();
+            for (String task : listTasksArray) {
+                if (task.equals("")) return;
+            }
             ObservableList<String> tasks = FXCollections.observableArrayList(listTasksArray);
             taskList.setItems(tasks);
             historyButton.setVisible(false);
             closeHistoryButton.setVisible(true);
-            closeTaskButton.setVisible(false);
-            saveEditedTaskButton.setVisible(false);
+            taskTextOfPanel.getChildren().removeAll(closeTaskButton, saveEditedTaskButton);
             taskText.setEditable(false);
             taskList.setOnMouseClicked(event -> {
                 taskTextOfPanel.setVisible(true);
                 MultipleSelectionModel<String> getSelectItem = taskList.getSelectionModel();
                 String[] text = settingApp.onShowTextTasksAll(getSelectItem.getSelectedItem()).split(DELIMITER);
                 taskText.setText(text[0]);
+                taskTime.setText(settingApp.onShowTimeTask(getSelectItem.getSelectedItem()));
+                if (!taskTextOfPanel.getChildren().contains(taskTime)) {
+                    taskTextOfPanel.getChildren().add(taskTime);
+                }
             });
-            onSetCellColor(OPEN_TASK_COLOR, CLOSE_TASK_COLOR, DEFAULT_TASK_COLOR);
+            onSetCellColor(OPEN_TASK_COLOR, CLOSE_TASK_COLOR);
         });
     }
 
-    private void onSetCellColor(String openTaskColor, String closeTaskColor, String defaultTaskColor) {
+    private void onSetCellColor(String openTaskColor, String closeTaskColor) {
         taskList.setCellFactory(new Callback<>() {
             @Override
             public ListCell<String> call(ListView<String> param) {
@@ -185,7 +195,7 @@ public class TodoList extends Application implements Thread.UncaughtExceptionHan
                             setStyle("-fx-control-inner-background: " + closeTaskColor + ";");
                         } else if (item == null) {
                             setText(null);
-                            setStyle("-fx-control-inner-background: " + defaultTaskColor + ";");
+                            setStyle("-fx-control-inner-background: " + TodoList.DEFAULT_TASK_COLOR + ";");
                         } else {
                             throw new RuntimeException("Unknown Status");
                         }

@@ -9,4 +9,5 @@ public interface OnActionTodoList {
     String onShowTextTask(String taskTitle);
     String[] onShowTitleTasksAll();
     String onShowTextTasksAll(String taskTitle);
+    String onShowTimeTask(String title);
 }
