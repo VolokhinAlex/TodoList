@@ -24,7 +24,6 @@
                     onAction="#onEditAndSaveTask"/>
             <Button HBox.hgrow="ALWAYS" fx:id="closeTaskButton" text="Close Task" minWidth="225" maxWidth="225"
                     onAction="#onCloseTask"/>
-            <Label fx:id="taskTime"/>
         </FlowPane>
 
     </HBox>

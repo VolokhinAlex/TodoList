@@ -83,7 +83,7 @@ public class SettingApp implements OnActionTodoList {
 
     @Override
     public String onShowTimeTask(String taskTitle) {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         Date date = new Date(SqlService.getTaskTime(taskTitle) * 1000L);
         return simpleDateFormat.format(date);
     }

@@ -44,9 +44,6 @@ public class TodoList extends Application implements Thread.UncaughtExceptionHan
     @FXML
     private TextArea taskText;
 
-    @FXML
-    private Label taskTime;
-
     private static final String OPEN_TASK_COLOR = "derive(palegreen, 50%)";
     private static final String CLOSE_TASK_COLOR = "derive(#be0303, 50%)";
     private static final String DEFAULT_TASK_COLOR = "#ffffff";
@@ -135,21 +132,39 @@ public class TodoList extends Application implements Thread.UncaughtExceptionHan
             taskList.setItems(tasks);
             historyButton.setVisible(true);
             closeHistoryButton.setVisible(false);
+            closeTaskButton.setVisible(true);
+            saveEditedTaskButton.setVisible(true);
             taskList.setOnMouseClicked(event -> {
                 taskTextOfPanel.setVisible(true);
                 onShowTextTask();
             });
-            if (!taskTextOfPanel.getChildren().contains(closeTaskButton) || !taskTextOfPanel.getChildren().contains(saveEditedTaskButton)) {
-                taskTextOfPanel.getChildren().addAll(closeTaskButton, saveEditedTaskButton);
-            }
-            taskTextOfPanel.getChildren().remove(taskTime);
             onSetCellColor(DEFAULT_TASK_COLOR, DEFAULT_TASK_COLOR);
+            onShowCreateDate();
         });
     }
 
     private void onShowTextTask() {
         MultipleSelectionModel<String> getText = taskList.getSelectionModel();
         taskText.setText(settingApp.onShowTextTask(getText.getSelectedItem()));
+    }
+
+    private void onShowCreateDate() {
+        taskList.setCellFactory(cell -> new ListCell<>() {
+            final Tooltip tooltip = new Tooltip();
+
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null) {
+                    setText(null);
+                    setTooltip(null);
+                } else {
+                    setText(item);
+                    tooltip.setText(settingApp.onShowTimeTask(item));
+                    setTooltip(tooltip);
+                }
+            }
+        });
     }
 
     @FXML
@@ -163,17 +178,14 @@ public class TodoList extends Application implements Thread.UncaughtExceptionHan
             taskList.setItems(tasks);
             historyButton.setVisible(false);
             closeHistoryButton.setVisible(true);
-            taskTextOfPanel.getChildren().removeAll(closeTaskButton, saveEditedTaskButton);
+            closeTaskButton.setVisible(false);
+            saveEditedTaskButton.setVisible(false);
             taskText.setEditable(false);
             taskList.setOnMouseClicked(event -> {
                 taskTextOfPanel.setVisible(true);
                 MultipleSelectionModel<String> getSelectItem = taskList.getSelectionModel();
                 String[] text = settingApp.onShowTextTasksAll(getSelectItem.getSelectedItem()).split(DELIMITER);
                 taskText.setText(text[0]);
-                taskTime.setText(settingApp.onShowTimeTask(getSelectItem.getSelectedItem()));
-                if (!taskTextOfPanel.getChildren().contains(taskTime)) {
-                    taskTextOfPanel.getChildren().add(taskTime);
-                }
             });
             onSetCellColor(OPEN_TASK_COLOR, CLOSE_TASK_COLOR);
         });
